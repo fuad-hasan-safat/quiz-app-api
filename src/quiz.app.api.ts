@@ -4,6 +4,7 @@ import { cors } from '@elysiajs/cors';
 import { v1Apis } from "./api/web/v1/quiz/quizv1";
 import { v2Apis } from "./api/web/v2/quiz/quizv2";
 
+
 const app = new Elysia()
 .use(cors())
 .use(swagger())
@@ -12,7 +13,6 @@ const app = new Elysia()
     messege: 'Your requested path  is not found',
   }
 
-  console.error(error) 
 }) 
 .use(v1Apis)
 .use(v2Apis)

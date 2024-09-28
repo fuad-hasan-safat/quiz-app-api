@@ -33,7 +33,7 @@ class Quiz {
 }
 
 export const quizv1 = new Elysia({ prefix: "/quiz" })
-    .get("questions", ()=> {
+    .get("/questions", ()=> {
         return new Quiz().questions;
     }, 
  
