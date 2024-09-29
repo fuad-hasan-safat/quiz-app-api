@@ -3,10 +3,12 @@ import { swagger } from "@elysiajs/swagger";
 import { cors } from '@elysiajs/cors';
 import { v1Apis } from "./api/web/v1/quiz/quizv1";
 import { v2Apis } from "./api/web/v2/quiz/quizv2";
+import { jwtConfig } from "./utility/jwt.config";
 
 
 const app = new Elysia()
 .use(cors())
+.use(jwtConfig)
 .use(swagger())
 .onError(({ error, code }) => { 
   if (code === 'NOT_FOUND') return {

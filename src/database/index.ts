@@ -36,10 +36,10 @@ function executeQuery(sql: string, callback: (err: MysqlError | null, data: any 
 function query(sql: string, callback: (err: MysqlError | null, data: any | null) => void): void {
     executeQuery(sql, (err, data) => {
         if (err) {
-            console.log(err);
+            // console.log(err);
             return callback(err, null);
         }
-        console.log('Sql query data')
+        // console.log('Sql query data')
         return callback(null, data);
     });
 }

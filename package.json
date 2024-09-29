@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.1.1",
+    "@elysiajs/jwt": "^1.1.1",
     "@elysiajs/swagger": "^1.1.1",
     "@mikro-orm/cli": "^6.3.11",
     "@mikro-orm/core": "^6.3.11",

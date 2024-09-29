@@ -8,7 +8,7 @@ export default async function logmessage(message: string) {
   const logFilePath = 'src/logs/logs/access.log'; // Replace with your desired log file path
 
   try {
-    if (!await existsSync(logFilePath)) {
+    if (!existsSync(logFilePath)) {
       await writeFileAsync(logFilePath, ''); // Create the file if it doesn't exist
     }
 
