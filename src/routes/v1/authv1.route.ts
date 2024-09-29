@@ -107,14 +107,13 @@ export const authv1 = new Elysia({ prefix: "auth" })
         //    This will be available inside de request object
         return { user };
     })
+    
     .get("/users", () => {
         const data = User.getAllUser();
         console.log("response data ->", data);
         return data;
     }, {
-        beforeHandle() {
-            // console.log('data is valid');
-        },
+
         afterHandle(context) {
             const {
                 request,
