@@ -107,7 +107,7 @@ export const authv1 = new Elysia({ prefix: "auth" })
         //    This will be available inside de request object
         return { user };
     })
-    .get("users", () => {
+    .get("/users", () => {
         const data = User.getAllUser();
         console.log("response data ->", data);
         return data;
@@ -231,11 +231,16 @@ export const authv1 = new Elysia({ prefix: "auth" })
                 error: error.message,
             };
         },
-    }).get('me',({user, error})=>{
-        // 1. Check if the user object is present, indicating an authenticated user
-      //    If the user is not authenticated (user is null or undefined), return a 401 error
-      if (!user) return error(401, "Not Authorized")
-  
-        // 2. If the user is authenticated, return the user 
-        return { phone: user.id }
-    })
+    }).guard({
+        beforeHandle({ user, set, headers }) {
+          // Return will not allowed to move forward 🚫
+          if (!user) return (set.status = "Unauthorized");
+        },
+      }, app =>
+        // every chain method from this `guard` will will automatically be authorized
+        app.get("/me", ({ user}) => {
+           return { user }
+        }))
+        .get("/private", ({ user }) => {
+           return { private: true }
+        })  
