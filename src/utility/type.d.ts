@@ -7,3 +7,14 @@ export interface UserAttributes {
     address: string;
     gender: string;
   }
+
+
+  export interface UserInfoAttributes {
+    id?: number;
+    userid: string;
+    txt: string;
+  }
+
+
+
+

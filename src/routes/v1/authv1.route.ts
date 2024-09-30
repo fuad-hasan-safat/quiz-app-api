@@ -1,96 +1,14 @@
-import { Elysia, t } from "elysia";
-import query from "../../database";
+import { Elysia, error, t } from "elysia";
 import logmessage from "../../logs/writeLogfile";
 import { jwtConfig } from "../../utility/jwt.config";
-import { UserType } from "../../utility/interface";
 import UserModel from "../../models/User";
-
-class User {
-    name: string;
-    phone: string;
-    gender: string;
-    dob: string;
-    address: string;
-    password: string;
-
-    constructor(
-        name: string,
-        phone: string,
-        gender: string,
-        dob: string,
-        address: string,
-        password: string,
-    ) {
-        this.name = name;
-        this.phone = phone;
-        this.gender = gender;
-        this.dob = dob;
-        this.address = address;
-        this.password = password;
-    }
-
-    async addNewUser() {
-        // const data = await new Promise((resolve, reject) => {
-        //     const date = new Date();
-        //     const sql =
-        //         `INSERT INTO users (name, phone, gender, dob, address, password, createat, updateat) VALUES ('${this.name}', '${this.phone}', '${this.gender}', '${this.dob}', '${this.address}', '${this.password}', NOW(), NOW())`;
-
-        //     query(sql, (err: Error | null, data: any) => {
-        //         if (err) {
-        //             reject(err);
-        //         } else {
-        //             resolve(data);
-        //         }
-        //     });
-        // });
-        // console.log("Database sql response ", data);
-
-        // return data;
-
-
-    }
-
-    static async getAllUser() {
-        const data = await new Promise((resolve, reject) => {
-            query(`SELECT * from users`, (err: Error | null, data: any) => {
-                if (err) {
-                    console.log("Database error->", err);
-                    reject(err);
-                } else {
-                    console.log("Query executed successfully 1");
-                    resolve(data);
-                }
-            });
-        });
-        return data;
-    }
-
-    static async findUserByPhone(phone: string) {
-        const sql = `SELECT * FROM users WHERE phone = '${phone}'`;
-        console.log(sql);
-        const data = await new Promise((resolve, reject) => {
-            query(sql, (err: Error | null, data: UserType[]) => {
-                if (err) {
-                    console.log("Database error->", err);
-                    reject(err);
-                } else {
-                    if (data.length > 0) {
-                        resolve(data[0]); // Return the first user found
-                    } else {
-                        resolve(null); // No user found
-                    }
-                }
-            });
-        });
-
-        return data;
-    }
-}
+import { UniqueConstraintError } from "sequelize";
+import LoginInfoModel from "../../models/userinfo";
 
 export const authv1 = new Elysia({ prefix: "auth" })
     .use(jwtConfig)
     .derive(async ({ headers, jwt_auth }) => {
-        console.log('Inside derive')
+        console.log("Inside derive");
         // 1. Extract the 'Authorization' header from the incoming request
         const auth = headers["authorization"];
 
@@ -110,13 +28,11 @@ export const authv1 = new Elysia({ prefix: "auth" })
         //    This will be available inside de request object
         return { user };
     })
-    
     .get("/users", () => {
-        const data = User.getAllUser();
+        const data = UserModel.findAll();
         console.log("response data ->", data);
         return data;
     }, {
-
         afterHandle(context) {
             const {
                 request,
@@ -132,9 +48,10 @@ export const authv1 = new Elysia({ prefix: "auth" })
         },
     })
     .post("/login", async ({ body: { phone, password }, jwt_auth }) => {
-        const user: UserType | null = await User.findUserByPhone(phone) as
-            | UserType
-            | null;
+        const user = await UserModel.findOne({
+            where: { phone },
+        });
+
         if (user) {
             // Compare passwords
             const isPasswordValid = await Bun.password.verify(
@@ -145,18 +62,25 @@ export const authv1 = new Elysia({ prefix: "auth" })
                 return { error: "Invalid password." };
             }
 
+          
+
+            const info =  await LoginInfoModel.create({
+                userid:  user.id,
+                txt: 'efjhbwefhjbsljfhbjkshafhvasljfjawhvf'
+            } as any)
+
+            console.log({info})
+
+
+
+
             // Generate token
             const token = await jwt_auth.sign({ id: user.phone });
             return {
                 message: "Login successful",
                 token: token,
-                user: {
-                    name: user.name,
-                    phone: user.phone,
-                    gender: user.gender,
-                    address: user.address,
-                    dob: user.dob,
-                },
+                user: user,
+                info: info
             };
         } else {
             return {
@@ -189,27 +113,24 @@ export const authv1 = new Elysia({ prefix: "auth" })
             cost: 10,
         });
 
-    
         const myuuid = crypto.randomUUID();
 
-        const newUser = await UserModel.create({ 
+        const newUser = await UserModel.create({
             id: myuuid,
             name: body.name,
             phone: body.phone,
             gender: body.gender,
             dob: body.dob,
             address: body.address,
-            password: password
+            password: password,
         } as any);
 
-        // const data = await user.addNewUser();
-        // console.log("Query return data in main handler ", data);
         const token = await jwt_auth.sign({ id: body.phone });
 
         return {
             message: "Sign up sucesses",
             token: token,
-            user: newUser
+            user: newUser,
         };
     }, {
         beforeHandle({ body: { name, phone, gender, address } }) {
@@ -220,9 +141,6 @@ export const authv1 = new Elysia({ prefix: "auth" })
             }
         },
 
-        afterHandle({ error }) {
-        },
-
         body: t.Object({
             name: t.String({ minLength: 1, maxLength: 100 }),
             phone: t.String({ minLength: 11, maxLength: 11 }),
@@ -231,23 +149,99 @@ export const authv1 = new Elysia({ prefix: "auth" })
             address: t.String(),
             password: t.String({ minLength: 8, maxLength: 100 }),
         }),
-
-        error({ error, code, set, body }) {
-            console.log("sign up error->", error.message);
-            return {
-                error: error.message,
-            };
-        },
-    }).guard({
+     
+    })
+    .guard({
         beforeHandle({ user, set, headers }) {
-          // Return will not allowed to move forward 🚫
-          if (!user) return (set.status = "Unauthorized");
+            // Return will not allowed to move forward 🚫
+            if (!user) return {
+                message: 'You are not an authoriged user to access this api',
+                do: 'Login and youe your secreat key'
+            }
         },
-      }, app =>
+    }, (app) =>
         // every chain method from this `guard` will will automatically be authorized
-        app.get("/me", ({ user}) => {
-           return { user }
-        }))
+        app.get("/me", ({ user }) => {
+            return { user };
+        })
         .get("/private", ({ user }) => {
-           return { private: true }
-        })  
+            return { private: true };
+        })
+        .post("/deleteMyAccount", async ({ body: { phone, password } }) => {
+            
+            const user = await UserModel.findOne({
+                where: { phone },
+            });
+    
+            if(!user){
+                return{
+                    error: "User not found"
+                }
+            }
+            
+            const deleted = await UserModel.destroy({
+                where: {
+                    id: user?.id
+                },
+            });
+    
+            if (deleted) {
+                return {
+                    message: "Account deleted successfully",
+                };
+            } else {
+                return {
+                    message: "Account not found",
+                };
+            }
+    
+        }, {
+            beforeHandle({ body: { phone, password } }) {
+                if (!phone || !password) {
+                    return {
+                        error: "Phone and Password are required.",
+                    };
+                }
+            },
+    
+            body: t.Object({
+                phone: t.String({ minLength: 11, maxLength: 11 }),
+                password: t.String({ minLength: 8, maxLength: 100 }),
+            }),
+        })
+        .put('/updateMe', async({body})=>{
+            const [updatedRowsCount, updatedRows] = await UserModel.update(body,{
+
+                where: { phone: body.phone },
+                returning: true, // This option will return the updated rows
+            });
+
+            console.log({updatedRows})
+
+            if(updatedRows){
+                return{
+                    message: "Account updated successfully",
+                    row:[updatedRows, updatedRowsCount]
+                }
+            }else{
+                return{
+                    message: "Un able to update, please check your phone number",
+                    row:[updatedRows, updatedRowsCount]
+                }
+            }
+
+           
+        
+        },{
+            body: t.Object({
+                name: t.Optional(t.String({ minLength: 1, maxLength: 100 })), // Required
+                phone: t.String({ minLength: 11, maxLength: 11 }), // Optional
+                gender: t.Optional(t.String({ minLength: 4, maxLength: 6 })), // Optional
+                dob: t.Optional(t.Date()), // Optional
+                address: t.Optional(t.String()), // Optional
+                password: t.Optional(t.String({ minLength: 8, maxLength: 100 })), // Required
+            }),
+        })
+    
+    )
+   

@@ -7,6 +7,7 @@ import {
   UpdatedAt,
   BeforeCreate,
   HasMany,
+  AllowNull,
 } from "sequelize-typescript";
 import { UserAttributes } from "../utility/type";
 // import Tour from "./Tour";
@@ -43,7 +44,9 @@ class UserModel extends Model<UserAttributes> {
   dob!: Date;
 
   @Column({
+    allowNull: false,
     type: DataType.STRING,
+    unique: true,
   })
   phone!: string;
 
