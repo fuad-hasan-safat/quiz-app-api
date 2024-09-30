@@ -217,6 +217,16 @@ export const authv1 = new Elysia({ prefix: "auth" })
             }),
         })
         .put('/updateMe', async({body})=>{
+            console.log({body})
+
+            if(body.password){
+                const password = await Bun.password.hash(body.password, {
+                    algorithm: "bcrypt",
+                    cost: 10,
+                });
+                body.password = password
+            }
+
             const [updatedRowsCount, updatedRows] = await UserModel.update(body,{
 
                 where: { phone: body.phone },
@@ -238,14 +248,23 @@ export const authv1 = new Elysia({ prefix: "auth" })
             }
 
         },{
+            beforeHandle({body}){
+                if(!body.address && !body.name && !body.dob && !body.gender && !body.phone && !body.password){
+                    return{
+                        message: 'give the value you want to update'
+                    }
+                }
+            },
+
             body: t.Object({
-                name: t.Optional(t.String({ minLength: 1, maxLength: 100 })), // Required
-                phone: t.String({ minLength: 11, maxLength: 11 }), // Optional
+                name: t.Optional(t.String({ minLength: 1, maxLength: 100 })), // Optional
+                phone: t.String({ minLength: 11, maxLength: 11 }), // Required
                 gender: t.Optional(t.String({ minLength: 4, maxLength: 6 })), // Optional
                 dob: t.Optional(t.Date()), // Optional
                 address: t.Optional(t.String()), // Optional
                 password: t.Optional(t.String({ minLength: 8, maxLength: 100 })), // Required
             }),
+            
         })
     
     )
