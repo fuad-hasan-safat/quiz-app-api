@@ -1,6 +1,6 @@
 import { Elysia, error, t } from "elysia";
-import logmessage from "../../logs/writeLogfile";
-import { jwtConfig } from "../../utility/jwt.config";
+import {logmessage} from "../../logs/writeLogfile";
+import { jwtAuthorizer, jwtConfig } from "../../utility/jwt.config";
 import UserModel from "../../models/User";
 import { UniqueConstraintError } from "sequelize";
 import LoginInfoModel from "../../models/userinfo";
@@ -9,28 +9,12 @@ export const authv1 = new Elysia({ prefix: "auth" })
     .use(jwtConfig)
     .derive(async ({ headers, jwt_auth }) => {
         console.log("Inside derive");
-        // 1. Extract the 'Authorization' header from the incoming request
         const auth = headers["authorization"];
-
-        // 2. Check if the 'Authorization' header contains a Bearer token
-        //    If it starts with 'Bearer ', extract the token string after 'Bearer '
-        //    Otherwise, set token to null indicating no valid token is present
-        const token = auth && auth.startsWith("Bearer ") ? auth.slice(7) : null;
-
-        // 3. If no token is found, return an object with user set to null
-        if (!token) return { user: null };
-
-        // 4. Verify the JWT token using the jwt_auth module
-        //    This step authenticates the token and retrieves the user information
-        const user = await jwt_auth.verify(token);
-
-        // 5. Return an object containing the authenticated user information
-        //    This will be available inside de request object
-        return { user };
+        const user = await jwtAuthorizer(auth, jwt_auth)
+        return user;
     })
     .get("/users", () => {
         const data = UserModel.findAll();
-        console.log("response data ->", data);
         return data;
     }, {
         afterHandle(context) {
@@ -95,7 +79,13 @@ export const authv1 = new Elysia({ prefix: "auth" })
                 };
             }
         },
-        afterHandle({ body: { phone, password } }) {
+        afterHandle({ request, headers }) {
+            const currentDate = new Date();
+            logmessage(
+                `${currentDate.toDateString()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} ${request.url} HOST:${headers.host} ${
+                    headers["user-agent"]
+                }`,
+            );
         },
         error({ error }) {
             return {
@@ -107,7 +97,7 @@ export const authv1 = new Elysia({ prefix: "auth" })
             password: t.String(),
         }),
     })
-    .post("signup", async ({ body, jwt_auth }) => {
+    .post("/signup", async ({ body, jwt_auth }) => {
         const password = await Bun.password.hash(body.password, {
             algorithm: "bcrypt",
             cost: 10,
@@ -141,6 +131,15 @@ export const authv1 = new Elysia({ prefix: "auth" })
             }
         },
 
+        afterHandle({headers, request}){
+            const currentDate = new Date();
+            logmessage(
+                `${currentDate.toDateString()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} ${request.url} HOST:${headers.host} ${
+                    headers["user-agent"]
+                }`,
+            );
+        },
+
         body: t.Object({
             name: t.String({ minLength: 1, maxLength: 100 }),
             phone: t.String({ minLength: 11, maxLength: 11 }),
@@ -159,6 +158,14 @@ export const authv1 = new Elysia({ prefix: "auth" })
                 do: 'Login and youe your secreat key'
             }
         },
+        afterHandle({headers, request}){
+            const currentDate = new Date();
+            logmessage(
+                `${currentDate.toDateString()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} ${request.url} HOST:${headers.host} ${
+                    headers["user-agent"]
+                }`,
+            );
+        }
     }, (app) =>
         // every chain method from this `guard` will will automatically be authorized
         app.get("/me", ({ user }) => {
@@ -230,8 +237,6 @@ export const authv1 = new Elysia({ prefix: "auth" })
                 }
             }
 
-           
-        
         },{
             body: t.Object({
                 name: t.Optional(t.String({ minLength: 1, maxLength: 100 })), // Required
