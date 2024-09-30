@@ -3,6 +3,7 @@ import query from "../../database";
 import logmessage from "../../logs/writeLogfile";
 import { jwtConfig } from "../../utility/jwt.config";
 import { UserType } from "../../utility/interface";
+import UserModel from "../../models/User";
 
 class User {
     name: string;
@@ -29,22 +30,24 @@ class User {
     }
 
     async addNewUser() {
-        const data = await new Promise((resolve, reject) => {
-            const date = new Date();
-            const sql =
-                `INSERT INTO users (name, phone, gender, dob, address, password, createat, updateat) VALUES ('${this.name}', '${this.phone}', '${this.gender}', '${this.dob}', '${this.address}', '${this.password}', NOW(), NOW())`;
+        // const data = await new Promise((resolve, reject) => {
+        //     const date = new Date();
+        //     const sql =
+        //         `INSERT INTO users (name, phone, gender, dob, address, password, createat, updateat) VALUES ('${this.name}', '${this.phone}', '${this.gender}', '${this.dob}', '${this.address}', '${this.password}', NOW(), NOW())`;
 
-            query(sql, (err: Error | null, data: any) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            });
-        });
-        console.log("Database sql response ", data);
+        //     query(sql, (err: Error | null, data: any) => {
+        //         if (err) {
+        //             reject(err);
+        //         } else {
+        //             resolve(data);
+        //         }
+        //     });
+        // });
+        // console.log("Database sql response ", data);
 
-        return data;
+        // return data;
+
+
     }
 
     static async getAllUser() {
@@ -186,22 +189,27 @@ export const authv1 = new Elysia({ prefix: "auth" })
             cost: 10,
         });
 
-        const user = new User(
-            body.name,
-            body.phone,
-            body.gender,
-            body.dob,
-            body.address,
-            password,
-        );
+    
+        const myuuid = crypto.randomUUID();
 
-        const data = await user.addNewUser();
-        console.log("Query return data in main handler ", data);
-        const token = await jwt_auth.sign({ id: user.phone });
+        const newUser = await UserModel.create({ 
+            id: myuuid,
+            name: body.name,
+            phone: body.phone,
+            gender: body.gender,
+            dob: body.dob,
+            address: body.address,
+            password: password
+        } as any);
+
+        // const data = await user.addNewUser();
+        // console.log("Query return data in main handler ", data);
+        const token = await jwt_auth.sign({ id: body.phone });
 
         return {
             message: "Sign up sucesses",
             token: token,
+            user: newUser
         };
     }, {
         beforeHandle({ body: { name, phone, gender, address } }) {
@@ -219,7 +227,7 @@ export const authv1 = new Elysia({ prefix: "auth" })
             name: t.String({ minLength: 1, maxLength: 100 }),
             phone: t.String({ minLength: 11, maxLength: 11 }),
             gender: t.String({ minLength: 4, maxLength: 6 }),
-            dob: t.String(),
+            dob: t.Date(),
             address: t.String(),
             password: t.String({ minLength: 8, maxLength: 100 }),
         }),
