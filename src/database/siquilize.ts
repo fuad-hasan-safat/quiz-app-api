@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import UserModel from "../models/User";
 import LoginInfoModel from "../models/userinfo";
+import QuizUserModel from "./tasks/quizUser";
 
 // Create a Sequelize instance with improved configuration
-const sequelize = new Sequelize('myPractice', 'root', '', {
+const sequelize = new Sequelize('play_quiz_cms', 'root', '', {
     host: 'localhost',
     dialect: 'mariadb',
     port:3306,
@@ -13,7 +14,7 @@ const sequelize = new Sequelize('myPractice', 'root', '', {
         idle: 10000,
         acquire: 10000,
     },
-    models: [UserModel, LoginInfoModel],
+    models: [UserModel, LoginInfoModel, QuizUserModel],
    
 });
 

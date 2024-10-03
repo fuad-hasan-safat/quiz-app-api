@@ -4,7 +4,7 @@ import { cors } from "@elysiajs/cors";
 import { v1Apis } from "./api/web/v1/quiz/quizv1";
 import { v2Apis } from "./api/web/v2/quiz/quizv2";
 import sequelize from "./database/siquilize";
-import { errorLogmessage, saveErrorMessage } from "./logs/writeLogfile";
+import {saveErrorMessage } from "./logs/writeLogfile";
 
 const app = new Elysia()
   .use(cors())

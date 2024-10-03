@@ -9,25 +9,20 @@
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/jwt": "^1.1.1",
     "@elysiajs/swagger": "^1.1.1",
-    "@mikro-orm/cli": "^6.3.11",
-    "@mikro-orm/core": "^6.3.11",
     "@planetscale/database": "^1.19.0",
     "@sequelize/core": "^7.0.0-alpha.37",
     "@types/mysql": "^2.15.26",
-    "drizzle-orm": "^0.33.0",
     "elysia": "latest",
     "fs": "^0.0.1-security",
     "mariadb": "^3.3.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.11.3",
-    "prisma": "^5.20.0",
     "sequelize": "^6.37.3",
     "sequelize-typescript": "^2.1.6"
   },
   "devDependencies": {
     "@types/sequelize": "^4.28.20",
-    "bun-types": "latest",
-    "drizzle-kit": "^0.24.2"
+    "bun-types": "latest"
   },
   "module": "src/index.js"
 }
