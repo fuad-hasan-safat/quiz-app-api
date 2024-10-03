@@ -25,6 +25,20 @@ export interface UserAttributes {
     txt: string;
   }
 
+  export interface dbConfig{
+    db_host: string;
+    db_user: string;
+    db_pass: string;
+    db_name: string;
+    db_port: string;
+    db_dialect: string;
+    port: string;
+    pool_min: number;
+    pool_max: number;
+    pool_idle: number;
+    pool_acquire: number;
+}
+
 
 
 

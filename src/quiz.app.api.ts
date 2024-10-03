@@ -6,6 +6,8 @@ import { v2Apis } from "./api/web/v2/quiz/quizv2";
 import sequelize from "./database/siquilize";
 import {saveErrorMessage } from "./logs/writeLogfile";
 
+const PORT = Bun.env.APP_PORT || 3000;
+
 const app = new Elysia()
   .use(cors())
   .use(swagger())
@@ -15,7 +17,7 @@ const app = new Elysia()
   })
   .use(v1Apis)
   .use(v2Apis)
-  .listen(3000);
+  .listen(PORT);
 
 (async () => {
   try {
