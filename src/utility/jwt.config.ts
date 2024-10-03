@@ -9,7 +9,6 @@ export const jwtConfig = jwt({
 
 export async function jwtAuthorizer(auth : any, jwt_auth: any){
   console.log("Inside derive");
-        // 1. Extract the 'Authorization' header from the incoming request
 
         // 2. Check if the 'Authorization' header contains a Bearer token
         //    If it starts with 'Bearer ', extract the token string after 'Bearer '

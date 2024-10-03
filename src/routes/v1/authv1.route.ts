@@ -12,10 +12,28 @@ export const authv1 = new Elysia({ prefix: "auth" })
         const user = await jwtAuthorizer(auth, jwt_auth)
         return user;
     })
-    .get("/users", () => {
-        const data = UserModel.findAll();
-        return data;
+    .get("/users", async() => {
+        const data = await UserModel.findAll();
+        console.log(data);
+
+        let userdata = [];
+
+        for (let index = 0; index < data.length; index++) {
+            const element = data[index];
+
+            userdata.push({
+                id: element.id,
+                name: element.id,
+            })
+            
+        }
+
+        return userdata;
     }, {
+        beforeHandle(){
+
+        },
+
         afterHandle(context) {
             const {
                 request,
@@ -97,6 +115,8 @@ export const authv1 = new Elysia({ prefix: "auth" })
         }),
     })
     .post("/signup", async ({ body, jwt_auth }) => {
+        console.log('Call inside main handle')
+
         const password = await Bun.password.hash(body.password, {
             algorithm: "bcrypt",
             cost: 10,
@@ -122,12 +142,13 @@ export const authv1 = new Elysia({ prefix: "auth" })
             user: newUser,
         };
     }, {
-        beforeHandle({ body: { name, phone, gender, address } }) {
-            if (!name || !phone || !gender || !address) {
-                return {
-                    error: "Name, phone, address, dob and gender are required.",
-                };
-            }
+        beforeHandle({ body: { name, phone, gender, address, dob } }) {
+            console.log('Call before handle')
+            // if (!name || !phone || !gender || !address || !dob || !password) {
+            //     return {
+            //         error: "Name, phone, address, dob and gender are required.",
+            //     };
+            // }
         },
 
         afterHandle({headers, request}){
