@@ -45,6 +45,14 @@ export interface UserAttributes {
     txt: string;
   }
 
+  export interface SubmitAnswerBody {
+    answer: {
+      questionId: string;
+      userAnswer: string;
+      questiontype: string;
+  }[];
+}
+
   export interface dbConfig{
     db_host: string;
     db_user: string;

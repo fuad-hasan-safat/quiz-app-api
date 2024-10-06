@@ -7,6 +7,7 @@ export async function getQuizQuestionsMiddleware() {
     const t = await sequelize.transaction();
 
     try {
+        console.log('Inside try question from database')
 
         const easyQuestions = await QuizQuestion.findAll({
             attributes: [
@@ -24,6 +25,8 @@ export async function getQuizQuestionsMiddleware() {
             order: Sequelize.literal('RAND()'),  // Randomize the order
             limit: 5  // Limit to 5 questions
         });
+        console.log('Inside try question from database easy question')
+
         const mediumQuestions = await QuizQuestion.findAll({
             attributes: [
                 'question_id',
@@ -61,6 +64,9 @@ export async function getQuizQuestionsMiddleware() {
 
         // Proceed with other operations
         await t.commit();
+        t.afterCommit(()=>{
+            console.log('after commit')
+        })
 
 
         return {
@@ -70,7 +76,7 @@ export async function getQuizQuestionsMiddleware() {
         }
 
     } catch (error) {
-        await t.rollback();  // Rollback everything if something goes wrong
+        // await t.rollback();  // Rollback everything if something goes wrong
 
         return {
             error: 'Failed to complete operation'

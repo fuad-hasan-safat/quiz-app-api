@@ -11,23 +11,23 @@ const PORT = Bun.env.APP_PORT || 3000;
 const app = new Elysia()
   .use(cors())
   .use(swagger())
-  .onError(({ error, code, headers, request }) => {
-    const message = saveErrorMessage(headers, error, code, request);
-    return message;
-  })
+  // .onError(({ error, code, headers, request }) => {
+  //   const message = saveErrorMessage(headers, error, code, request);
+  //   return message;
+  // })
   .use(v1Apis)
   .use(v2Apis)
   .listen(PORT);
 
-// (async () => {
-//   try {
-//     await sequelize.authenticate();
-//     sequelize.sync({ force: false });
-//     console.log("Connection has been established successfully.");
-//   } catch (error) {
-//     console.error("Unable to connect to the database:", error);
-//   }
-// })();
+(async () => {
+  try {
+    await sequelize.authenticate();
+    sequelize.sync({ force: false });
+    console.log("Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+})();
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

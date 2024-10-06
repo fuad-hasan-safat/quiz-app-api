@@ -6,11 +6,17 @@ export async function registrationMiddleware(body: any, jwt_auth: any) {
     const t = await sequelize.transaction();
 
     try {
+        console.log("Inside try  block");
+
         const user = await QuizUserModel.findOne({
             where: {
                 quiz_user_mobile: body.mobile,
             }
         } as any);
+
+        console.log("Inside try  block after executing  query");
+
+
 
         const token = await jwt_auth.sign({
             mobile: body.mobile

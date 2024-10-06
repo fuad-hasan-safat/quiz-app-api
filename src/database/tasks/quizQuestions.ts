@@ -7,7 +7,6 @@ import {
     UpdatedAt,
     Sequelize,
 } from "sequelize-typescript";
-import sequelize from "../siquilize";
 import { QuizQuestionAttributes } from "../../utility/type";
 
 @Table({

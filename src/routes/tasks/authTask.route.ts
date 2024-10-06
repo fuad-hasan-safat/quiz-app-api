@@ -12,11 +12,7 @@ export const authTasks = new Elysia({ name: 'authTasks', prefix: 'authTasks' })
         body: t.Object({
             name: t.String({ minLength: 4 }),
             mobile: t.String({ minLength: 11, maxLength: 11 }),
-            gender: t.Union([
-                t.Literal("male"),
-                t.Literal("female"),
-                t.Literal("common")
-            ]),
+            gender: t.Enum({op:"male", op1:"female", op2: "common"}),
             address: t.Optional(t.String()),
             dateOfBirth: t.Date(),
             
