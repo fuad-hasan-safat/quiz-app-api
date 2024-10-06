@@ -2,7 +2,6 @@ import { Sequelize } from "sequelize-typescript";
 import UserModel from "../models/User";
 import LoginInfoModel from "../models/userinfo";
 import QuizUserModel from "./tasks/quizUser";
-
 import { Dialect} from "sequelize";
 import dbConfig from "../utility/dbConfig";
 
