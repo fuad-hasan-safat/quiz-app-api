@@ -4,6 +4,7 @@ import LoginInfoModel from "../models/userinfo";
 import QuizUserModel from "./tasks/quizUser";
 import { Dialect} from "sequelize";
 import dbConfig from "../utility/dbConfig";
+import QuizQuestion from "./tasks/quizQuestions";
 
 
 // Create a Sequelize instance with improved configuration
@@ -17,7 +18,7 @@ const sequelize = new Sequelize(dbConfig.db_name, dbConfig.db_user, dbConfig.db_
         idle: dbConfig.pool_idle || 10000,
         acquire: dbConfig.pool_acquire || 10000,
     },
-    models: [UserModel, LoginInfoModel, QuizUserModel],
+    models: [UserModel, LoginInfoModel, QuizUserModel, QuizQuestion],
    
 });
 

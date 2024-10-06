@@ -46,7 +46,7 @@ class QuizUserModel extends Model<quizUserAttributes> {
     quiz_user_date_of_birth!: Date;
 
     @Column({
-        type: DataType.STRING,
+        type: DataType.ENUM('male', 'female', 'common'),
         allowNull: false,
     })
     quiz_user_gender!: string;
@@ -57,7 +57,17 @@ class QuizUserModel extends Model<quizUserAttributes> {
     })
     quiz_user_address!: Text;
 
+    @Column({
+        field: 'created_at',
+        type: DataType.DATE,
+    })
+    createdAt!: Date;
 
+    @Column({
+        field: 'updated_at',
+        type: DataType.DATE,
+    })
+    updatedAt!: Date;
 
 }
 

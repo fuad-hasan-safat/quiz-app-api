@@ -1,4 +1,4 @@
-import { Elysia, error, t } from "elysia";
+import { Elysia,t } from "elysia";
 import {logmessage} from "../../logs/writeLogfile";
 import { jwtAuthorizer, jwtConfig } from "../../utility/jwt.config";
 import UserModel from "../../models/User";

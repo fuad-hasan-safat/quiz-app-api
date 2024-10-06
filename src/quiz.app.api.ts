@@ -19,15 +19,15 @@ const app = new Elysia()
   .use(v2Apis)
   .listen(PORT);
 
-(async () => {
-  try {
-    await sequelize.authenticate();
-    sequelize.sync({ force: false });
-    console.log("Connection has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-})();
+// (async () => {
+//   try {
+//     await sequelize.authenticate();
+//     sequelize.sync({ force: false });
+//     console.log("Connection has been established successfully.");
+//   } catch (error) {
+//     console.error("Unable to connect to the database:", error);
+//   }
+// })();
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
