@@ -34,14 +34,16 @@ export const quizTaskRoute = new Elysia({ prefix: "quiz" })
                 user: userdata
             };
         })
-            .post("/submitAnswer", ({body:{answer}}) => {
-                const result = calculateAnswerHandler(answer);
+            .post("/submitAnswer", async ({body:{questionIdList, answerslist}, user}) => {
+                const result = await calculateAnswerHandler(questionIdList, answerslist);
+                const userdata = await findUserbyPhone(user.mobile) 
+                return {
+                    result,
+                    userdata
+                }
             },{
                 body: t.Object({
-                    answer: t.Array(t.Object({
-                        questionId: t.String(),
-                        userAnswer: t.String(),
-                        questiontype: t.String()
-                    }))
+                    questionIdList: t.Array(t.String()),
+                    answerslist: t.Array(t.String())
                 })
             }));

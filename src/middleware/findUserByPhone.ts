@@ -22,7 +22,11 @@ export default async function findUserbyPhone(mobile: any) {
         await t.commit();
 
         if (user) {
-            return user;
+            return {
+                name: user.quiz_user_name,
+                mobile: user.quiz_user_mobile,
+                gender: user.quiz_user_gender
+            };
         }
 
         return {
