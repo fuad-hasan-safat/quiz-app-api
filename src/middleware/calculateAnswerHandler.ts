@@ -1,38 +1,43 @@
 import { Sequelize } from "sequelize-typescript";
 import QuizQuestion from "../database/tasks/quizQuestions";
+import { getQuistionsIdList } from "../utility/questionBank";
+import QuizQuestionBank from "../database/tasks/quizQuestionBank";
 
-export default async function calculateAnswerHandler(questionsidlist: any, userAnswersList: any) {
+export default async function calculateAnswerHandler(userSubmission: any) {
 
-    const results = await QuizQuestion.findAll({
-        attributes: ['question_answer'],
+    const uuuid = crypto.randomUUID();
+    console.log('UUUID->>', uuuid)
+
+   await userSubmission.sort((a: any, b: any) => {
+        return Number(a.questionId) - Number(b.questionId);
+      });
+
+    const questionsidlist = await getQuistionsIdList(userSubmission);
+
+    const answer = await QuizQuestionBank.findAll({
+        attributes: ['id', 'difficultly', 'answer', 'quiz_point'],
         where: {
-            question_id: questionsidlist
+            id: questionsidlist
         },
-        group: ['question_id'],
-        order: Sequelize.literal(`FIELD(question_id, ${questionsidlist.map((id: any) => `'${id}'`).join(', ')})`)
+        raw: true, 
     });
-    const answers = results.map((result: any) => result.question_answer);
 
-    const points = await QuizQuestion.findAll({
-        attributes: ['question_point'],
-        where: {
-            question_id: questionsidlist
-        },
-        group: ['question_id'],
-        order: Sequelize.literal(`FIELD(question_id, ${questionsidlist.map((id: any) => `'${id}'`).join(', ')})`)
-    });
-    const pointList = points.map((result: any) => result.question_point);
-
+    console.log('Answer->', answer, userSubmission)
 
     let totalPoint = 0
-    for(let i  = 0; i <  questionsidlist.length; i++){
-        console.log(questionsidlist[i], answers[i], pointList[i])
 
-        if(pointList[i] === undefined) continue;
+    for (let index = 0; index < userSubmission.length; index++) {
+        const userAnswer = userSubmission[index];
+        const dataBaseAnswer = answer[index];
 
-        if(answers[i].trim() === userAnswersList[i].trim()){
-            totalPoint += pointList[i]
+        console.log({dataBaseAnswer})
+        if(dataBaseAnswer === undefined) continue;
+
+        if( userAnswer.answer ===  dataBaseAnswer.answer){
+            console.log('উত্তর মিলেছে --->')
+            totalPoint += dataBaseAnswer.quiz_point
         }
+        
     }
 
 

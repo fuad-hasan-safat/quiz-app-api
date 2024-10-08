@@ -1,66 +1,79 @@
 import { Sequelize } from "sequelize-typescript";
 import sequelize from "../database/siquilize";
 import QuizQuestion from "../database/tasks/quizQuestions";
+import QuizQuestionBank from "../database/tasks/quizQuestionBank";
+import QuizListModel from "../database/tasks/quizList";
 
-export async function getQuizQuestionsMiddleware() {
+export async function getQuizQuestionsMiddleware(userdata:any) {
 
     const t = await sequelize.transaction();
 
     try {
         console.log('Inside try question from database')
 
-        const easyQuestions = await QuizQuestion.findAll({
+        const easyQuestions = await QuizQuestionBank.findAll({
             attributes: [
-                'question_id',
-                'question_title',
-                'question_type',
-                'question_option_1',
-                'question_option_2',
-                'question_option_3',
-                'question_option_4'
+                'id',
+                'title',
+                'difficultly',
+                'option_1',
+                'option_2',
+                'option_3',
+                'option_4'
             ],
             where: {
-                question_type: 'easy'
+                difficultly: 'easy'
             },
+            raw: true,
             order: Sequelize.literal('RAND()'),  // Randomize the order
             limit: 5  // Limit to 5 questions
         });
         console.log('Inside try question from database easy question')
 
-        const mediumQuestions = await QuizQuestion.findAll({
+        const mediumQuestions = await QuizQuestionBank.findAll({
             attributes: [
-                'question_id',
-                'question_title',
-                'question_type',
-                'question_option_1',
-                'question_option_2',
-                'question_option_3',
-                'question_option_4'
+                'id',
+                'title',
+                'difficultly',
+                'option_1',
+                'option_2',
+                'option_3',
+                'option_4'
             ],
             where: {
-                question_type: 'medium'
+                difficultly: 'medium'
             },
+            raw: true,
             order: Sequelize.literal('RAND()'),  // Randomize the order
             limit: 5  // Limit to 5 questions
         });
-        const hardQuestions = await QuizQuestion.findAll({
+        const hardQuestions = await QuizQuestionBank.findAll({
             attributes: [
-                'question_id',
-                'question_title',
-                'question_type',
-                'question_option_1',
-                'question_option_2',
-                'question_option_3',
-                'question_option_4'
+                'id',
+                'title',
+                'difficultly',
+                'option_1',
+                'option_2',
+                'option_3',
+                'option_4'
             ],
             where: {
-                question_type: 'hard'
+                difficultly: 'hard'
             },
+            raw: true,
             order: Sequelize.literal('RAND()'),  // Randomize the order
             limit: 5  // Limit to 5 questions
         });
 
 
+        const quizId =  crypto.randomUUID();
+        const totalQuestion = easyQuestions.length +  mediumQuestions.length + hardQuestions.length;
+
+        const newQuiz = await QuizListModel.create({
+            id: quizId,
+            quiz_user_mobile: userdata.mobile,
+            totat_question: totalQuestion
+        })
 
         // Proceed with other operations
         await t.commit();

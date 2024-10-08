@@ -22,20 +22,20 @@ export const quizTaskRoute = new Elysia({ prefix: "quiz" })
             }
         },
     }, (app) =>
-        app.get("/questios", async ({ user }) => {
+        app.get("/start-quiz", async ({ user }) => {
             console.log(user);
 
             const userdata = await findUserbyPhone(user.mobile);
 
-            const data = await getQuizQuestionsMiddleware();
+            const data = await getQuizQuestionsMiddleware(userdata);
 
             return {
                 questions: data,
                 user: userdata
             };
         })
-            .post("/submitAnswer", async ({body:{questionIdList, answerslist}, user}) => {
-                const result = await calculateAnswerHandler(questionIdList, answerslist);
+            .post("/submit-answer", async ({body:{userSubmission}, user}) => {
+                const result = await calculateAnswerHandler(userSubmission);
                 const userdata = await findUserbyPhone(user.mobile) 
                 return {
                     result,
@@ -43,7 +43,9 @@ export const quizTaskRoute = new Elysia({ prefix: "quiz" })
                 }
             },{
                 body: t.Object({
-                    questionIdList: t.Array(t.String()),
-                    answerslist: t.Array(t.String())
+                    userSubmission: t.Array(t.Object({
+                        questionId: t.String(),
+                        answer: t.String(),
+                    }))
                 })
             }));
