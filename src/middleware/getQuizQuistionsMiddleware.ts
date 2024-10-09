@@ -85,7 +85,8 @@ export async function getQuizQuestionsMiddleware(userdata:any) {
         return {
             easy: easyQuestions,
             medium: mediumQuestions,
-            hard: hardQuestions
+            hard: hardQuestions,
+            quizId: quizId
         }
 
     } catch (error) {
