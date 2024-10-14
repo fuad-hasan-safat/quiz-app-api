@@ -1,14 +1,8 @@
 import {
-    AllowNull,
     Column,
-    CreatedAt,
     DataType,
     Model,
-    PrimaryKey,
-    Sequelize,
     Table,
-    Unique,
-    UpdatedAt,
 } from "sequelize-typescript";
 
 @Table({
