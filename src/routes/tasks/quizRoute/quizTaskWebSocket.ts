@@ -9,11 +9,13 @@ const qwizTaskWebSocket = new Elysia()
         response: t.String(),
         message(ws, message) {
             ws.send(message);
+
+            console.log('message',message)
         },
     })
-    .listen(3000)
+    .listen(3001)
 
-const api = treaty<typeof qwizTaskWebSocket>("localhost:3000");
+const api = treaty<typeof qwizTaskWebSocket>("localhost:3001");
 
 const chat = api.chat.subscribe();
 
@@ -24,5 +26,6 @@ chat.subscribe((message) => {
 chat.on("open", () => {
     chat.send("hello from client");
 });
+
 
 export default qwizTaskWebSocket;
